@@ -5,14 +5,15 @@ import org.springframework.messaging.MessageHeaders;
 
 import java.util.Map.Entry;
 
-public class PrintService {
-    public void print(Message<String> message) {
+class PrintService {
+    void print(Message<String> message) {
         MessageHeaders headers = message.getHeaders();
 
+        System.out.println("Headers: \n");
         for (Entry<String, Object> entry : headers.entrySet()) {
-            System.out.println(entry.getKey());
-            System.out.println(entry.getValue());
+            System.out.println("Key: " + entry.getKey());
+            System.out.println("Value: " + entry.getValue());
         }
-        System.out.println(message.getPayload());
+        System.out.println("\nPayload: " + message.getPayload());
     }
 }
