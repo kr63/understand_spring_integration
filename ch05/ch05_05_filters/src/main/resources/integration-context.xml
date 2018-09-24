@@ -21,7 +21,10 @@
                   method="split"
                   input-channel="inputChannel" output-channel="agChannel"/>
     
-    <int:aggregator input-channel="agChannel" output-channel="outputChannel"/>
+    <int:aggregator ref="customAggregator"
+            input-channel="agChannel" output-channel="outputChannel"/>
+
+    <bean id="customAggregator" class="com.oreilly.integration.CustomAggregator"/>
 
 	<bean id="printService" class="com.oreilly.integration.PrintService"/>
 
