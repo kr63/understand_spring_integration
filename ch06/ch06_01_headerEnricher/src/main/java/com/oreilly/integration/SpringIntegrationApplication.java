@@ -28,7 +28,10 @@ public class SpringIntegrationApplication implements ApplicationRunner {
 		        new Person("Kevin", "Bowersox"),
                 new Person("John", "Doe")};
         for (Person payload : payloads) {
-            Message<?> message = MessageBuilder.withPayload(payload).build();
+            Message<?> message = MessageBuilder
+                    .withPayload(payload)
+                    .setHeader("privateKey", "12345")
+                    .build();
             this.gateway.print(message);
         }
 	}

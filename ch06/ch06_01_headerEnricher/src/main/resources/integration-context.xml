@@ -2,6 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:in="http://www.springframework.org/schema/integration"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.2.xsd">
 
@@ -10,9 +11,14 @@
 
 	<int:channel id="inputChannel" />
 	<int:channel id="outputChannel" />
+    <in:channel id="filterChannel"/>
+
+    <int:header-filter
+            header-names="privateKey"
+            input-channel="inputChannel" output-channel="filterChannel"/>
 
     <int:object-to-json-transformer
-            input-channel="inputChannel" output-channel="outputChannel"/>
+            input-channel="filterChannel" output-channel="outputChannel"/>
 
     <bean id="customTransformer" class="com.oreilly.integration.CustomTransformer"/>
 	<bean id="printService" class="com.oreilly.integration.PrintService" />
