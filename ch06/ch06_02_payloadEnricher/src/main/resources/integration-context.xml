@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.2.xsd">
+
+	<int:gateway service-interface="com.oreilly.integration.PrinterGateway"
+		default-request-channel="inputChannel" />
+
+	<int:channel id="inputChannel" />
+    <int:channel id="enricherChannel"/>
+    <int:channel id="requestChannel"/>
+    <int:channel id="filterChannel" />
+    <int:channel id="outputChannel" />
+
+    <int:enricher
+            input-channel="inputChannel" output-channel="enricherChannel"
+            request-channel="requestChannel">
+        <int:property name="phoneNumber" expression="payload"/>
+    </int:enricher>
+
+    <int:header-filter
+            header-names="privateKey"
+            input-channel="enricherChannel" output-channel="filterChannel"/>
+
+    <int:object-to-json-transformer
+            input-channel="filterChannel" output-channel="outputChannel"/>
+
+    <bean class="com.oreilly.integration.CustomService" id="customService"/>
+
+	<bean id="printService" class="com.oreilly.integration.PrintService" />
+
+    <int:service-activator
+            ref="customService"
+            input-channel="requestChannel" method="getPhoneNumber"/>
+
+	<int:service-activator  ref="printService" method="print"
+		input-channel="outputChannel" />
+
+</beans>
