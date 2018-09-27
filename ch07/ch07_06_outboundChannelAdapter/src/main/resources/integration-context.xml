@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.2.xsd">
+
+	<int:inbound-channel-adapter channel="registerChannel"
+                                 ref="personDirectoryService" method="findNewPeople">
+		<int:poller fixed-rate="3000"/>
+	</int:inbound-channel-adapter>
+	
+	<bean id="personDirectoryService"
+          class="com.oreilly.integration.PersonDirectoryService"/>
+
+	<int:outbound-channel-adapter channel="registerChannel"
+                                  ref="personRegistrationService" method="registerEmail"/>
+	
+	<bean id="personRegistrationService"
+          class="com.oreilly.integration.PersonRegistrationService"/>
+
+	<int:channel id="registerChannel" />
+</beans>
