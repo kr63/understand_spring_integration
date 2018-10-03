@@ -10,7 +10,6 @@ gen### Java template
 # Compiled class file
 # Log file
 *.log
-*/write/*
 
 # BlueJ files
 *.ctxt
