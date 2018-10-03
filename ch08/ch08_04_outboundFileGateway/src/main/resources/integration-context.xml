@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
+       xmlns:in="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-4.2.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.2.xsd">
+
+    <int:channel id="inboundChannel"/>
+    <int:channel id="transformChannel"/>
+    <int:channel id="outboundChannel"/>
+
+	<int-file:inbound-channel-adapter
+            directory="file:ch08/ch08_04_outboundFileGateway/src/test/read"
+            filename-pattern="sample.txt"
+            channel="inboundChannel">
+        <int:poller fixed-rate="10"/>
+	</int-file:inbound-channel-adapter>
+
+    <int-file:file-to-string-transformer
+            input-channel="inboundChannel"
+            output-channel="transformChannel"/>
+
+    <int-file:outbound-gateway
+            request-channel="transformChannel"
+            reply-channel="outboundChannel"
+            directory="file:ch08/ch08_04_outboundFileGateway/src/test/write"
+            mode="REPLACE"/>
+
+    <in:service-activator ref="filePrinter" method="print" input-channel="outboundChannel"/>
+    <bean id="filePrinter" class="com.oreilly.integration.FilePrinter"/>
+
+</beans>
