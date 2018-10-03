@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-ftp="http://www.springframework.org/schema/integration/ftp"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation=
+               "http://www.springframework.org/schema/beans
+               http://www.springframework.org/schema/beans/spring-beans.xsd
+               http://www.springframework.org/schema/integration/ftp
+               http://www.springframework.org/schema/integration/ftp/spring-integration-ftp-4.2.xsd
+               http://www.springframework.org/schema/integration
+               http://www.springframework.org/schema/integration/spring-integration-4.2.xsd"
+>
+
+    <int:channel id="ftpChannel"/>
+
+    <int:gateway service-interface="com.oreilly.integration.FileWriterGateway"
+                 default-request-channel="ftpChannel"/>
+
+    <int-ftp:outbound-channel-adapter
+            session-factory="ftpClientFactory"
+            channel="ftpChannel"
+            remote-directory="files"
+            remote-filename-generator-expression="headers['fileName']">
+    </int-ftp:outbound-channel-adapter>
+
+    <bean id="ftpClientFactory" class="org.springframework.integration.ftp.session.DefaultFtpSessionFactory">
+        <property name="host" value="localhost"/>
+        <property name="port" value="21"/>
+        <property name="username" value="lxuser"/>
+        <property name="password" value="mypass"/>
+    </bean>
+
+    <int:service-activator ref="filePrinter" method="print" input-channel="ftpChannel"/>
+
+    <bean id="filePrinter" class="com.oreilly.integration.FilePrinter"/>
+
+</beans>
