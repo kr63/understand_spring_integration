@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+               http://www.springframework.org/schema/beans/spring-beans.xsd
+               http://www.springframework.org/schema/integration
+               http://www.springframework.org/schema/integration/spring-integration-4.2.xsd
+               http://www.springframework.org/schema/integration/jms
+               http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd">
+
+    <!--method invocation sends a message to the queue-->
+    <int:gateway service-interface="com.oreilly.integration.PersonGateway"
+                 default-request-channel="inboundChannel"/>
+
+    <int:object-to-string-transformer
+            input-channel="inboundChannel"
+            output-channel="outboundChannel"/>
+
+    <int-jms:outbound-gateway
+            request-destination="queue"
+            request-channel="outboundChannel"
+            reply-destination="replyQueue"
+            reply-channel="replyChannel"
+    />
+    <int:service-activator ref="mp" method="printConsole" input-channel="replyChannel"/>
+
+    <!--will check the queue for messages to process & pass them to service acitvator-->
+    <int-jms:inbound-gateway
+            connection-factory="connectionFactory"
+            request-destination="queue"
+            request-channel="jmsChannel"
+            default-reply-destination="replyQueue"/>
+
+    <int:service-activator ref="mp" method="print" input-channel="jmsChannel"/>
+
+    <bean id="mp" class="com.oreilly.integration.MessagePrinter"/>
+
+    <int:channel id="jmsChannel"/>
+
+    <int:channel id="inboundChannel"/>
+
+    <int:channel id="outboundChannel"/>
+
+    <int:channel id="replyChannel"/>
+
+    <bean id="connectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="tcp://localhost:61616"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="replyQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="reply.queue"/>
+    </bean>
+
+    <bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="sample.queue"/>
+    </bean>
+
+</beans>
