@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+       xsi:schemaLocation="http://www.springframework.org/schema/integration/xml
+    http://www.springframework.org/schema/integration/xml/spring-integration-xml-4.2.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/integration
+    http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+
+	<int:gateway service-interface="com.oreilly.integration.SimpleGateway"
+		default-request-channel="xmlInput"/>
+
+    <int-xml:xpath-transformer
+            input-channel="xmlInput"
+            output-channel="xmlOutput"
+            xpath-expression="/people/person[1]/firstName"
+    />
+
+	<bean class="com.oreilly.integration.MessagePrinter" id="printer"/>
+
+	<int:service-activator ref="printer" input-channel="xmlOutput" method="printConsole"/>
+
+	<int:channel id="xmlInput"/>
+	<int:channel id="xmlOutput"/>
+
+</beans>
